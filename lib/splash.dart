@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'game_screen.dart';
+import 'game_start_button.dart';
 
 class Splash extends StatelessWidget {
   const Splash({super.key});
@@ -33,19 +35,13 @@ class Splash extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 120),
-              AnimatedTextKit(
-                animatedTexts: [
-                  TypewriterAnimatedText(
-                    'start!',
-                    speed: const Duration(milliseconds: 500),
-                    textStyle: const TextStyle(
-                      fontFamily: 'PressStart',
-                      fontSize: 16,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-                repeatForever: true,
+              GameStartButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const GameScreen()),
+                  );
+                },
               ),
             ],
           ),
