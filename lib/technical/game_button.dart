@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class GameButton extends StatelessWidget {
-  final String text;
   final VoidCallback onPressed;
   final Color? backgroundColor;
   final Color? textColor;
@@ -11,7 +10,6 @@ class GameButton extends StatelessWidget {
 
   const GameButton({
     super.key,
-    required this.text,
     required this.onPressed,
     this.backgroundColor,
     this.textColor,
@@ -43,14 +41,9 @@ class GameButton extends StatelessWidget {
           ],
         ),
         child: Center(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontFamily: 'PressStart',
-              fontSize: fontSize ?? 16,
-              color: textColor ?? Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            
           ),
         ),
       ),
