@@ -23,11 +23,12 @@ class GameButton extends StatelessWidget {
     return GestureDetector(
       onTapDown: (_) => onPressed(),
       child: Container(
-        width: width,
-        height: height,
+        width: 100,
+        height: 100,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
           color: backgroundColor ?? const Color(0xFF4ECDC4),
+          shape: BoxShape.circle,
           border: Border.all(
             color: Colors.black,
             width: 4,
