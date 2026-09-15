@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 class GameButton extends StatelessWidget {
   final VoidCallback onPressed;
   final Color? backgroundColor;
-  final Color? textColor;
-  final double? fontSize;
   final double? width;
   final double? height;
 
@@ -12,8 +10,6 @@ class GameButton extends StatelessWidget {
     super.key,
     required this.onPressed,
     this.backgroundColor,
-    this.textColor,
-    this.fontSize,
     this.width,
     this.height,
   });
@@ -21,11 +17,12 @@ class GameButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => onPressed(),
+      onTap: onPressed,
       child: Container(
-        width: 100,
-        height: 100,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        width: width ?? 100,
+        height: height ?? 100,
+
+
         decoration: BoxDecoration(
           color: backgroundColor ?? const Color(0xFF4ECDC4),
           shape: BoxShape.circle,

@@ -12,6 +12,7 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   final GameLogic gameLogic = GameLogic();
+  Offset _buttonPosition = Offset(100, 100);
   
   // Controls whether the hint is visible
   bool _showHint = true;
@@ -22,6 +23,7 @@ class _GameScreenState extends State<GameScreen> {
   void _buttonPressed() {
     setState (() {
     gameLogic.incrementScore();
+    _buttonPosition = gameLogic.moveButtonRandom(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height);
     });
   }
 
@@ -66,17 +68,20 @@ class _GameScreenState extends State<GameScreen> {
       body: Stack(
         children: [
 
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+          if (_gameStarted)
+            Positioned(
+              left: _buttonPosition.dx,
+              top: _buttonPosition.dy,
+              child: GameButton(
+                onPressed: _buttonPressed,
+              ),
+            ),
 
-                if (_gameStarted)
-                  GameButton(
-                    onPressed: _buttonPressed,
-                  ),
-
-                if (!_gameStarted)
+          if (!_gameStarted)
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                   const Text(
                     'Get ready...',
                     style: TextStyle(
@@ -85,17 +90,22 @@ class _GameScreenState extends State<GameScreen> {
                       fontSize: 18,
                     ),
                   ),
-
-                const SizedBox(height: 30),
-
-                if (_gameStarted)
-                  ElevatedButton(
-                    onPressed: _restartGame,
-                    child: const Text('Restart Game'),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
+
+          if (_gameStarted)
+            Positioned(
+              bottom: 30,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: ElevatedButton(
+                  onPressed: _restartGame,
+                  child: const Text('Restart Game'),
+                ),
+              ),
+            ),
 
           if (_showHint)
             GestureDetector(
