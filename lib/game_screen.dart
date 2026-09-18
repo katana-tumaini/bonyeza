@@ -65,11 +65,15 @@ class _GameScreenState extends State<GameScreen> {
         ],
       ),
 
-      body: Stack(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
         children: [
 
           if (_gameStarted)
-            Positioned(
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOut,
               left: _buttonPosition.dx,
               top: _buttonPosition.dy,
               child: GameButton(
@@ -161,6 +165,8 @@ class _GameScreenState extends State<GameScreen> {
               ),
             ),
         ],
+          );
+        }
       ),
     );
   }
