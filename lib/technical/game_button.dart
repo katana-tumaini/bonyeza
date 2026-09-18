@@ -22,7 +22,6 @@ class GameButton extends StatelessWidget {
         width: width ?? 100,
         height: height ?? 100,
 
-
         decoration: BoxDecoration(
           color: backgroundColor ?? const Color(0xFF4ECDC4),
           shape: BoxShape.circle,
@@ -41,7 +40,6 @@ class GameButton extends StatelessWidget {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            
           ),
         ),
       ),

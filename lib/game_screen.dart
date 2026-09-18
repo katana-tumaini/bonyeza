@@ -23,7 +23,16 @@ class _GameScreenState extends State<GameScreen> {
   void _buttonPressed() {
     setState (() {
     gameLogic.incrementScore();
-    _buttonPosition = gameLogic.moveButtonRandom(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height);
+    });
+  }
+
+  void _moveButton(double maxWidth, double maxHeight) {
+    setState(() {
+      _buttonPosition = gameLogic.moveButtonRandom(
+        maxWidth,
+        maxHeight,
+        gameLogic.calculateButtonSize,
+      );
     });
   }
 
@@ -67,17 +76,33 @@ class _GameScreenState extends State<GameScreen> {
 
       body: LayoutBuilder(
         builder: (context, constraints) {
+          // Move button to random position within available space when game starts
+          if (_gameStarted && _buttonPosition == const Offset(100, 100)) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _moveButton(constraints.maxWidth, constraints.maxHeight);
+            });
+          }
+
           return Stack(
         children: [
 
           if (_gameStarted)
             AnimatedPositioned(
-              duration: const Duration(milliseconds: 400),
+              duration: Duration(
+                milliseconds: (400 / gameLogic.calculateSpeed(
+                  gameLogic.getScore(),
+                )).round(),
+              ),
               curve: Curves.easeInOut,
               left: _buttonPosition.dx,
               top: _buttonPosition.dy,
               child: GameButton(
-                onPressed: _buttonPressed,
+                onPressed: () {
+                  _buttonPressed();
+                  _moveButton(constraints.maxWidth, constraints.maxHeight);
+                },
+                width: gameLogic.calculateButtonSize,
+                height: gameLogic.calculateButtonSize,
               ),
             ),
 
@@ -101,12 +126,12 @@ class _GameScreenState extends State<GameScreen> {
           if (_gameStarted)
             Positioned(
               bottom: 30,
-              left: 0,
+              left: 30,
               right: 0,
               child: Center(
                 child: ElevatedButton(
                   onPressed: _restartGame,
-                  child: const Text('Restart Game'),
+                  child: const Text('↻'),
                 ),
               ),
             ),
