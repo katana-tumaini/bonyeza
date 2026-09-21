@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:bonyeza/technical/game_button.dart';
 import 'package:bonyeza/technical/counter.dart';
@@ -20,9 +21,17 @@ class _GameScreenState extends State<GameScreen> {
   // Controls whether the actual game has started
   bool _gameStarted = false;
   
+  // Controls whether the game is over
+  bool _gameOver = false;
+  
+  // Timer for button timeout
+  Timer? _buttonTimer;
+  
   void _buttonPressed() {
     setState (() {
     gameLogic.incrementScore();
+    _buttonTimer?.cancel();
+    _startButtonTimer();
     });
   }
 
@@ -40,6 +49,8 @@ class _GameScreenState extends State<GameScreen> {
     setState(() {
       _showHint = false;
       _gameStarted = true;
+      _gameOver = false;
+      _startButtonTimer();
     });
   }
 
@@ -47,7 +58,28 @@ class _GameScreenState extends State<GameScreen> {
     setState(() {
       gameLogic.resetScore();
       _gameStarted = true;
+      _gameOver = false;
+      _buttonTimer?.cancel();
+      _startButtonTimer();
     });
+  }
+  
+  void _startButtonTimer() {
+    _buttonTimer?.cancel();
+    _buttonTimer = Timer(gameLogic.buttonDuration, _onTimeout);
+  }
+  
+  void _onTimeout() {
+    setState(() {
+      _gameOver = true;
+      _buttonTimer?.cancel();
+    });
+  }
+  
+  @override
+  void dispose() {
+    _buttonTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -86,7 +118,7 @@ class _GameScreenState extends State<GameScreen> {
           return Stack(
         children: [
 
-          if (_gameStarted)
+          if (_gameStarted && !_gameOver)
             AnimatedPositioned(
               duration: Duration(
                 milliseconds: (400 / gameLogic.calculateSpeed(
@@ -174,10 +206,75 @@ class _GameScreenState extends State<GameScreen> {
                         ),
                       ),
 
+                      SizedBox(height: 20),
+
+                      Text(
+                        'Be quick!\nButton disappears\nafter a few seconds!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontFamily: 'PressStart',
+                          fontSize: 12,
+                        ),
+                      ),
+
                       SizedBox(height: 40),
 
                       Text(
                         'Tap anywhere to start',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
+                        ),
+                      ),
+
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          if (_gameOver)
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+
+              onTap: _restartGame,
+
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+
+                color: Colors.black.withOpacity(0.85),
+
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+
+                      const Text(
+                        'GAME OVER',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontFamily: 'PressStart',
+                          fontSize: 24,
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      Text(
+                        'Score: ${gameLogic.getScore()}',
+                        style: const TextStyle(
+                          color: Colors.yellow,
+                          fontFamily: 'PressStart',
+                          fontSize: 18,
+                        ),
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      const Text(
+                        'Tap anywhere to restart',
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 16,
