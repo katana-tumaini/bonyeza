@@ -41,7 +41,7 @@ class GameLogic {
 
   // Button stays visible for less time every 5 points
   Duration get buttonDuration {
-    final milliseconds = 2000 - ((score ~/ 5) * 200);
+    final milliseconds = 4000 - ((score ~/ 10) * 200);
 
     return Duration(
       milliseconds: milliseconds.clamp(600, 2000),

@@ -27,6 +27,12 @@ class _GameScreenState extends State<GameScreen> {
   // Timer for button timeout
   Timer? _buttonTimer;
   
+  // Timer for countdown display
+  Timer? _countdownTimer;
+  
+  // Remaining time for display
+  int _remainingTime = 0;
+  
   void _buttonPressed() {
     setState (() {
     gameLogic.incrementScore();
@@ -66,7 +72,21 @@ class _GameScreenState extends State<GameScreen> {
   
   void _startButtonTimer() {
     _buttonTimer?.cancel();
+    _countdownTimer?.cancel();
+    
+    _remainingTime = gameLogic.buttonDuration.inMilliseconds;
+    
     _buttonTimer = Timer(gameLogic.buttonDuration, _onTimeout);
+    
+    _countdownTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      setState(() {
+        _remainingTime -= 100;
+        if (_remainingTime <= 0) {
+          _remainingTime = 0;
+          _countdownTimer?.cancel();
+        }
+      });
+    });
   }
   
   void _onTimeout() {
@@ -79,6 +99,7 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void dispose() {
     _buttonTimer?.cancel();
+    _countdownTimer?.cancel();
     super.dispose();
   }
 
@@ -88,13 +109,32 @@ class _GameScreenState extends State<GameScreen> {
       appBar: AppBar(
         backgroundColor: Colors.blue[200],
 
-        title: const Text(
-          'bonyeza',
-          style: TextStyle(
-            fontFamily: 'PressStart',
-            fontSize: 14,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'bonyeza',
+              style: TextStyle(
+                fontFamily: 'PressStart',
+                fontSize: 14,
+              ),
+            ),
+            if (_gameStarted && !_gameOver) ...[
+              const SizedBox(width: 20),
+              Text(
+                '${(_remainingTime / 1000).toStringAsFixed(1)}s',
+                style: const TextStyle(
+                  fontFamily: 'PressStart',
+                  fontSize: 14,
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ],
         ),
+
+        centerTitle: true,
 
         actions: [
           Padding(
