@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 class GameButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final Color? backgroundColor;
   final double? width;
   final double? height;
 
   const GameButton({
     super.key,
-    required this.onPressed,
+    this.onPressed,
     this.backgroundColor,
     this.width,
     this.height,

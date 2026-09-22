@@ -13,7 +13,7 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   final GameLogic gameLogic = GameLogic();
-  Offset _buttonPosition = Offset(100, 100);
+  List<Offset> _buttonPositions = [];
   
   // Controls whether the hint is visible
   bool _showHint = true;
@@ -33,20 +33,36 @@ class _GameScreenState extends State<GameScreen> {
   // Remaining time for display
   int _remainingTime = 0;
   
-  void _buttonPressed() {
-    setState (() {
-    gameLogic.incrementScore();
-    _buttonTimer?.cancel();
-    _startButtonTimer();
-    });
+  // Store screen constraints for button positioning
+  Size _screenSize = Size.zero;
+  
+  void _buttonPressed(int buttonIndex) {
+    gameLogic.clickButton(buttonIndex);
+    setState(() {});
+    
+    // Check if all buttons have been clicked
+    if (gameLogic.allButtonsClicked()) {
+      // All buttons clicked - increment score and start new round
+      final buttonCount = gameLogic.getClickedCount();
+      gameLogic.incrementScore(buttonCount);
+      _buttonTimer?.cancel();
+      _startButtonTimer();
+      
+      // Reposition buttons using stored screen dimensions
+      if (_screenSize != Size.zero) {
+        _moveAllButtons(_screenSize.width, _screenSize.height);
+      }
+    }
   }
 
-  void _moveButton(double maxWidth, double maxHeight) {
+  void _moveAllButtons(double maxWidth, double maxHeight) {
     setState(() {
-      _buttonPosition = gameLogic.moveButtonRandom(
+      final buttonCount = gameLogic.getButtonCount();
+      _buttonPositions = gameLogic.moveAllButtonsRandom(
         maxWidth,
         maxHeight,
         gameLogic.calculateButtonSize,
+        buttonCount,
       );
     });
   }
@@ -66,6 +82,7 @@ class _GameScreenState extends State<GameScreen> {
       _gameStarted = true;
       _gameOver = false;
       _buttonTimer?.cancel();
+      _buttonPositions = [];
       _startButtonTimer();
     });
   }
@@ -116,16 +133,16 @@ class _GameScreenState extends State<GameScreen> {
               'bonyeza',
               style: TextStyle(
                 fontFamily: 'PressStart',
-                fontSize: 14,
+                fontSize: 10,
               ),
             ),
             if (_gameStarted && !_gameOver) ...[
-              const SizedBox(width: 20),
+              const SizedBox(width: 6),
               Text(
                 '${(_remainingTime / 1000).toStringAsFixed(1)}s',
                 style: const TextStyle(
                   fontFamily: 'PressStart',
-                  fontSize: 14,
+                  fontSize: 10,
                   color: Colors.red,
                   fontWeight: FontWeight.bold,
                 ),
@@ -137,6 +154,21 @@ class _GameScreenState extends State<GameScreen> {
         centerTitle: true,
 
         actions: [
+          if (_gameStarted && !_gameOver && gameLogic.buttonClicked.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(right: 12.0),
+              child: Center(
+                child: Text(
+                  '${gameLogic.getClickedCount()}/${gameLogic.buttonClicked.length}',
+                  style: const TextStyle(
+                    fontFamily: 'PressStart',
+                    fontSize: 10,
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: Center(
@@ -148,10 +180,13 @@ class _GameScreenState extends State<GameScreen> {
 
       body: LayoutBuilder(
         builder: (context, constraints) {
-          // Move button to random position within available space when game starts
-          if (_gameStarted && _buttonPosition == const Offset(100, 100)) {
+          // Store screen dimensions for button positioning
+          _screenSize = Size(constraints.maxWidth, constraints.maxHeight);
+          
+          // Move buttons when positions are empty (game start or round complete)
+          if (_gameStarted && _buttonPositions.isEmpty) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _moveButton(constraints.maxWidth, constraints.maxHeight);
+              _moveAllButtons(constraints.maxWidth, constraints.maxHeight);
             });
           }
 
@@ -159,24 +194,31 @@ class _GameScreenState extends State<GameScreen> {
         children: [
 
           if (_gameStarted && !_gameOver)
-            AnimatedPositioned(
-              duration: Duration(
-                milliseconds: (400 / gameLogic.calculateSpeed(
-                  gameLogic.getScore(),
-                )).round(),
-              ),
-              curve: Curves.easeInOut,
-              left: _buttonPosition.dx,
-              top: _buttonPosition.dy,
-              child: GameButton(
-                onPressed: () {
-                  _buttonPressed();
-                  _moveButton(constraints.maxWidth, constraints.maxHeight);
-                },
-                width: gameLogic.calculateButtonSize,
-                height: gameLogic.calculateButtonSize,
-              ),
-            ),
+            ..._buttonPositions.asMap().entries.map((entry) {
+              final index = entry.key;
+              final position = entry.value;
+              final isClicked = index < gameLogic.buttonClicked.length && gameLogic.buttonClicked[index];
+              
+              return AnimatedPositioned(
+                key: ValueKey('button_$index'),
+                duration: Duration(
+                  milliseconds: (400 / gameLogic.calculateSpeed(
+                    gameLogic.getScore(),
+                  )).round(),
+                ),
+                curve: Curves.easeInOut,
+                left: position.dx,
+                top: position.dy,
+                child: GameButton(
+                  onPressed: isClicked ? null : () {
+                    _buttonPressed(index);
+                  },
+                  backgroundColor: isClicked ? Colors.grey : null,
+                  width: gameLogic.calculateButtonSize,
+                  height: gameLogic.calculateButtonSize,
+                ),
+              );
+            }),
 
           if (!_gameStarted)
             Center(
@@ -237,7 +279,7 @@ class _GameScreenState extends State<GameScreen> {
                       SizedBox(height: 30),
 
                       Text(
-                        'Tap the button\nto score points!',
+                        'Tap ALL buttons\nto score points!',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.yellow,
@@ -249,7 +291,7 @@ class _GameScreenState extends State<GameScreen> {
                       SizedBox(height: 20),
 
                       Text(
-                        'Be quick!\nButton disappears\nafter a few seconds!',
+                        'Buttons multiply\nas you progress!\nClick them all\nbefore time runs out!',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.red,

@@ -8,9 +8,9 @@ class Counter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      'Score: $count',
+      '$count',
       style: const TextStyle(
-        fontSize: 14,
+        fontSize: 12,
         fontFamily: 'PressStart',
         fontWeight: FontWeight.bold,
       ),
