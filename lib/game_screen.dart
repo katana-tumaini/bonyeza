@@ -237,19 +237,6 @@ class _GameScreenState extends State<GameScreen> {
               ),
             ),
 
-          if (_gameStarted)
-            Positioned(
-              bottom: 30,
-              left: 30,
-              right: 0,
-              child: Center(
-                child: ElevatedButton(
-                  onPressed: _restartGame,
-                  child: const Text('↻'),
-                ),
-              ),
-            ),
-
           if (_showHint)
             GestureDetector(
               behavior: HitTestBehavior.opaque,
