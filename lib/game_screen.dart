@@ -36,6 +36,24 @@ class _GameScreenState extends State<GameScreen> {
   // Store screen constraints for button positioning
   Size _screenSize = Size.zero;
   
+  // Background color state
+  Color _backgroundColor = Colors.blue[50]!;
+  
+  // List of background colors to cycle through on game over
+  final List<Color> _gameOverColors = [
+    Colors.red[50]!,
+    Colors.orange[50]!,
+    Colors.yellow[50]!,
+    Colors.green[50]!,
+    Colors.teal[50]!,
+    Colors.purple[50]!,
+    Colors.pink[50]!,
+    Colors.grey[200]!,
+  ];
+  
+  // Current color index for game over
+  int _colorIndex = 0;
+  
   void _buttonPressed(int buttonIndex) {
     gameLogic.clickButton(buttonIndex);
     setState(() {});
@@ -72,6 +90,9 @@ class _GameScreenState extends State<GameScreen> {
       _showHint = false;
       _gameStarted = true;
       _gameOver = false;
+      if (gameLogic.score == 0) {
+        _backgroundColor = Colors.blue[50]!;
+      }
       _startButtonTimer();
     });
   }
@@ -110,6 +131,9 @@ class _GameScreenState extends State<GameScreen> {
     setState(() {
       _gameOver = true;
       _buttonTimer?.cancel();
+      // Change background color on game over (will be applied when they restart)
+      _backgroundColor = _gameOverColors[_colorIndex];
+      _colorIndex = (_colorIndex + 1) % _gameOverColors.length;
     });
   }
   
@@ -119,15 +143,28 @@ class _GameScreenState extends State<GameScreen> {
     _countdownTimer?.cancel();
     super.dispose();
   }
+  
+  String _getColorName(Color color) {
+    if (color == Colors.red[50]) return 'Red';
+    if (color == Colors.orange[50]) return 'Orange';
+    if (color == Colors.yellow[50]) return 'Yellow';
+    if (color == Colors.green[50]) return 'Green';
+    if (color == Colors.teal[50]) return 'Teal';
+    if (color == Colors.purple[50]) return 'Purple';
+    if (color == Colors.pink[50]) return 'Pink';
+    if (color == Colors.grey[200]) return 'Grey';
+    return 'Blue';
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.blue[200],
+        backgroundColor: Colors.transparent,
 
         title: Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
               'bonyeza',
@@ -136,8 +173,7 @@ class _GameScreenState extends State<GameScreen> {
                 fontSize: 10,
               ),
             ),
-            if (_gameStarted && !_gameOver) ...[
-              const SizedBox(width: 6),
+            if (_gameStarted && !_gameOver)
               Text(
                 '${(_remainingTime / 1000).toStringAsFixed(1)}s',
                 style: const TextStyle(
@@ -146,36 +182,31 @@ class _GameScreenState extends State<GameScreen> {
                   color: Colors.red,
                   fontWeight: FontWeight.bold,
                 ),
-              ),
-            ],
+              )
+            else
+              const SizedBox.shrink(),
+            Row(
+              children: [
+                if (_gameStarted && !_gameOver && gameLogic.buttonClicked.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 10.0),
+                    child: Text(
+                      '${gameLogic.getClickedCount()}/${gameLogic.buttonClicked.length}',
+                      style: const TextStyle(
+                        fontFamily: 'PressStart',
+                        fontSize: 10,
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                Counter(count: gameLogic.score),
+              ],
+            ),
           ],
         ),
 
-        centerTitle: true,
-
-        actions: [
-          if (_gameStarted && !_gameOver && gameLogic.buttonClicked.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(right: 12.0),
-              child: Center(
-                child: Text(
-                  '${gameLogic.getClickedCount()}/${gameLogic.buttonClicked.length}',
-                  style: const TextStyle(
-                    fontFamily: 'PressStart',
-                    fontSize: 10,
-                    color: Colors.orange,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Center(
-              child: Counter(count: gameLogic.score),
-            ),
-          ),
-        ],
+        centerTitle: false,
       ),
 
       body: LayoutBuilder(
@@ -313,7 +344,7 @@ class _GameScreenState extends State<GameScreen> {
                 width: double.infinity,
                 height: double.infinity,
 
-                color: Colors.black.withOpacity(0.85),
+                color: Colors.black.withOpacity(0.7),
 
                 child: Center(
                   child: Column(
@@ -341,6 +372,7 @@ class _GameScreenState extends State<GameScreen> {
                       ),
 
                       const SizedBox(height: 40),
+
 
                       const Text(
                         'Tap anywhere to restart',
