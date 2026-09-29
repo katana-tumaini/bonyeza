@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:bonyeza/technical/game_button.dart';
 import 'package:bonyeza/technical/counter.dart';
 import 'package:bonyeza/logic/game_logic.dart';
+import 'package:bonyeza/technical/audio_manager.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -13,6 +14,8 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   final GameLogic gameLogic = GameLogic();
+  final AudioManager _audioManager = AudioManager();
+  
   List<Offset> _buttonPositions = [];
   
   // Controls whether the hint is visible
@@ -55,6 +58,7 @@ class _GameScreenState extends State<GameScreen> {
   int _colorIndex = 0;
   
   void _buttonPressed(int buttonIndex) {
+    _audioManager.playTapSound();
     gameLogic.clickButton(buttonIndex);
     setState(() {});
     
@@ -128,6 +132,8 @@ class _GameScreenState extends State<GameScreen> {
   }
   
   void _onTimeout() {
+    _audioManager.playGameOverSound();
+
     setState(() {
       _gameOver = true;
       _buttonTimer?.cancel();
@@ -141,6 +147,7 @@ class _GameScreenState extends State<GameScreen> {
   void dispose() {
     _buttonTimer?.cancel();
     _countdownTimer?.cancel();
+    _audioManager.dispose();
     super.dispose();
   }
   
