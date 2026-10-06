@@ -6,6 +6,7 @@ class GameLogic {
   List<Offset> buttonPositions = [];
   List<bool> buttonClicked = []; // Track which buttons have been clicked
   final Random _random = Random();
+  bool _isMorphed = false; // Track if currently in morphed state
    
   void incrementScore(int points) {
     score += points;
@@ -15,6 +16,7 @@ class GameLogic {
     score = 0;
     buttonPositions = [];
     buttonClicked = [];
+    _isMorphed = false;
   }
   
   int getScore() {
@@ -46,22 +48,24 @@ class GameLogic {
   // Calculate how many buttons should be displayed
   // Increases with score but randomly varies for unpredictability
   int getButtonCount() {
-    if (score < 5) return 1; // Always 1 button for beginners
+    if (_isMorphed) return 1; // Always 1 button when morphed
     
+    if (score < 5) return 1; // Always 1 button for beginners
+
     // Base button count increases every 10 points
     int baseCount = 1 + (score ~/ 10);
-    
+
     // Random variation: sometimes add extra buttons, sometimes reduce
     int variation = _random.nextInt(3) - 1; // -1, 0, or +1
-    
+
     // 30% chance to suddenly drop to 1 button (surprise factor)
     if (_random.nextDouble() < 0.3 && score > 10) {
       return 1;
     }
-    
+
     // Calculate final count with variation
     int finalCount = (baseCount + variation).clamp(1, 5);
-    
+
     return finalCount;
   }
 
@@ -126,15 +130,54 @@ class GameLogic {
 
   // Button gets smaller every 5 points
   double get calculateButtonSize {
+    if (_isMorphed) {
+      return 100.0; // Big button when morphed
+    }
     return (100.0 - ((score ~/ 5) * 10)).clamp(50.0, 100.0);
   }
 
   // Button stays visible for less time every 5 points
   Duration get buttonDuration {
+    if (_isMorphed) {
+      return const Duration(milliseconds: 3000); // Longer duration when morphed
+    }
     final milliseconds = 4000 - ((score ~/ 10) * 200);
 
     return Duration(
       milliseconds: milliseconds.clamp(600, 2000),
     );
+  }
+
+  // Check if game should morph back to one big button (random when extreme)
+  bool shouldMorphToBigButton() {
+    // Only check if game has progressed enough to be "extreme"
+    if (score < 20) return false;
+
+    // Check if we're at extreme conditions (minimum size or duration)
+    bool isExtremeSize = calculateButtonSize <= 55.0; // Near minimum size
+    bool isExtremeDuration = buttonDuration.inMilliseconds <= 700; // Near minimum duration
+
+    // If extreme, 25% chance to morph back to one big button
+    if (isExtremeSize || isExtremeDuration) {
+      return _random.nextDouble() < 0.25;
+    }
+
+    return false;
+  }
+
+  // Morph back to one big button state
+  void morphToBigButton() {
+    // Set morphed state to give player a breather
+    _isMorphed = true;
+    buttonPositions = [];
+    buttonClicked = [];
+  }
+
+  // Check if currently in morphed state
+  bool get isMorphed => _isMorphed;
+
+  // Call this after a morphed round to return to normal progression
+  void endMorph() {
+    _isMorphed = false;
   }
 }
