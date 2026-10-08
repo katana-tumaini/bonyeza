@@ -36,6 +36,7 @@ flutter:
      - assets/step_background.png
      - assets/tap.wav
      - assets/game_over.wav
+     - assets/pure.mp3
 
   fonts:
     - family: PressStart

@@ -8,7 +8,9 @@ import 'package:bonyeza/technical/audio_manager.dart';
 import 'package:bonyeza/technical/particle_effect.dart';
 import 'package:bonyeza/technical/high_score_manager.dart';
 import 'package:bonyeza/technical/settings_manager.dart';
+import 'package:bonyeza/technical/background_music.dart';
 import 'package:bonyeza/settings_screen.dart';
+import 'package:bonyeza/technical/background_music.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -20,6 +22,7 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   final GameLogic gameLogic = GameLogic();
   final AudioManager _audioManager = AudioManager();
+  final BackgroundMusic _backgroundMusic = BackgroundMusic();
 
   @override
   void initState() {
@@ -44,6 +47,9 @@ class _GameScreenState extends State<GameScreen> {
     });
     // Reload audio manager settings
     await _audioManager.reloadSettings();
+
+    // Initialize background music using the saved setting
+    await _backgroundMusic.initialize();
   }
   
   List<Offset> _buttonPositions = [];
@@ -264,6 +270,7 @@ class _GameScreenState extends State<GameScreen> {
     _buttonTimer?.cancel();
     _countdownTimer?.cancel();
     _audioManager.dispose();
+    _backgroundMusic.dispose();
     super.dispose();
   }
   

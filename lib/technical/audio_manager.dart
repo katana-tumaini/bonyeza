@@ -2,8 +2,17 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:bonyeza/technical/settings_manager.dart';
 
 class AudioManager {
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  final AudioPlayer _soundEffectPlayer = AudioPlayer();
+
   bool _audioEnabled = true;
+
+  final AudioContext _audioContext = AudioContext(
+    android: AudioContextAndroid(
+      audioFocus: AndroidAudioFocus.none,
+      contentType: AndroidContentType.sonification,
+      usageType: AndroidUsageType.assistanceSonification,
+    ),
+  );
 
   AudioManager() {
     _loadAudioSetting();
@@ -18,18 +27,48 @@ class AudioManager {
   }
 
   Future<void> playTapSound() async {
-    if (_audioEnabled) {
-      await _audioPlayer.play(AssetSource('tap.wav'));
+    if (!_audioEnabled) return;
+
+    final player = AudioPlayer();
+
+    try {
+      await player.play(
+        AssetSource('tap.wav'),
+        ctx: _audioContext,
+      );
+
+      Future.delayed(const Duration(milliseconds: 500), () {
+        player.dispose();
+      });
+    } catch (e) {
+      print('Error playing tap sound: $e');
+
+      await player.dispose();
     }
   }
 
   Future<void> playGameOverSound() async {
-    if (_audioEnabled) {
-      await _audioPlayer.play(AssetSource('game_over.wav'));
+    if (!_audioEnabled) return;
+
+    final player = AudioPlayer();
+
+    try {
+      await player.play(
+        AssetSource('game_over.wav'),
+        ctx: _audioContext,
+      );
+
+      Future.delayed(const Duration(seconds: 2), () {
+        player.dispose();
+      });
+    } catch (e) {
+      print('Error playing game over sound: $e');
+
+      await player.dispose();
     }
   }
 
   void dispose() {
-    _audioPlayer.dispose();
+    _soundEffectPlayer.dispose();
   }
 }
