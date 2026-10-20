@@ -9,7 +9,10 @@ import 'package:bonyeza/technical/particle_effect.dart';
 import 'package:bonyeza/technical/high_score_manager.dart';
 import 'package:bonyeza/technical/settings_manager.dart';
 import 'package:bonyeza/technical/background_music.dart';
+import 'package:bonyeza/technical/coin_manager.dart';
+import 'package:bonyeza/models/button_design.dart';
 import 'package:bonyeza/settings_screen.dart';
+import 'package:bonyeza/button_shop_screen.dart';
 import 'package:bonyeza/technical/background_music.dart';
 
 class GameScreen extends StatefulWidget {
@@ -29,6 +32,7 @@ class _GameScreenState extends State<GameScreen> {
     super.initState();
     _loadHighScore();
     _loadSettings();
+    _loadGameData();
   }
 
   Future<void> _loadHighScore() async {
@@ -41,6 +45,7 @@ class _GameScreenState extends State<GameScreen> {
   Future<void> _loadSettings() async {
     final audioEnabled = await SettingsManager.getAudioEnabled();
     final hapticsEnabled = await SettingsManager.getHapticsEnabled();
+
     setState(() {
       _audioEnabled = audioEnabled;
       _hapticsEnabled = hapticsEnabled;
@@ -50,6 +55,17 @@ class _GameScreenState extends State<GameScreen> {
 
     // Initialize background music using the saved setting
     await _backgroundMusic.initialize();
+  }
+
+  Future<void> _loadGameData() async {
+    final coins = await CoinManager.getCoins();
+    final selectedButtonId = await CoinManager.getSelectedButtonId();
+    final selectedButtonDesign = ButtonDesign.getById(selectedButtonId);
+
+    setState(() {
+      _coins = coins;
+      _selectedButtonDesign = selectedButtonDesign;
+    });
   }
   
   List<Offset> _buttonPositions = [];
@@ -92,6 +108,11 @@ class _GameScreenState extends State<GameScreen> {
   bool _audioEnabled = true;
   bool _hapticsEnabled = true;
   bool _showSettings = false;
+  bool _showShop = false;
+
+  // Coins and button design
+  int _coins = 0;
+  ButtonDesign? _selectedButtonDesign;
   
   // List of background colors to cycle through on game over
   final List<Color> _gameOverColors = [
@@ -256,6 +277,9 @@ class _GameScreenState extends State<GameScreen> {
       _loadHighScore();
     });
 
+    // Reload game data after game
+    _loadGameData();
+
     setState(() {
       _gameOver = true;
       _buttonTimer?.cancel();
@@ -300,6 +324,18 @@ class _GameScreenState extends State<GameScreen> {
       );
     }
 
+    // Show shop screen if requested
+    if (_showShop) {
+      return ButtonShopScreen(
+        onBack: () {
+          setState(() {
+            _showShop = false;
+          });
+          _loadGameData(); // Reload game data (coins and button design) after returning
+        },
+      );
+    }
+
     return Scaffold(
       backgroundColor: _backgroundColor,
       appBar: AppBar(
@@ -329,6 +365,31 @@ class _GameScreenState extends State<GameScreen> {
               const SizedBox.shrink(),
             Row(
               children: [
+                // Coins display
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.yellow[400],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.black, width: 1),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.monetization_on, size: 14, color: Colors.black),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$_coins',
+                        style: const TextStyle(
+                          fontFamily: 'PressStart',
+                          fontSize: 8,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
                 if (_gameStarted && !_gameOver && !_isPaused && gameLogic.buttonClicked.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(right: 10.0),
@@ -352,6 +413,18 @@ class _GameScreenState extends State<GameScreen> {
                       color: Colors.black,
                     ),
                   ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: IconButton(
+                    icon: const Icon(Icons.store),
+                    onPressed: () {
+                      setState(() {
+                        _showShop = true;
+                      });
+                    },
+                    color: Colors.black,
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(left: 10.0),
                   child: IconButton(
@@ -409,7 +482,7 @@ class _GameScreenState extends State<GameScreen> {
                   onPressed: isClicked ? null : () {
                     _buttonPressed(index);
                   },
-                  backgroundColor: isClicked ? Colors.grey : null,
+                  backgroundColor: isClicked ? Colors.grey : _selectedButtonDesign?.color,
                   width: gameLogic.calculateButtonSize,
                   height: gameLogic.calculateButtonSize,
                 ),
@@ -544,6 +617,17 @@ class _GameScreenState extends State<GameScreen> {
                           color: Colors.orange,
                           fontFamily: 'PressStart',
                           fontSize: 14,
+                        ),
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      Text(
+                        'Coins Earned: +${gameLogic.coinsEarned}',
+                        style: const TextStyle(
+                          color: Colors.yellow,
+                          fontFamily: 'PressStart',
+                          fontSize: 12,
                         ),
                       ),
 

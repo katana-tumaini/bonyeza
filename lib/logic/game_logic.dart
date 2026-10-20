@@ -1,19 +1,26 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:bonyeza/technical/coin_manager.dart';
 
 class GameLogic {
   int score = 0;
+  int coinsEarned = 0;
   List<Offset> buttonPositions = [];
   List<bool> buttonClicked = []; // Track which buttons have been clicked
   final Random _random = Random();
   bool _isMorphed = false; // Track if currently in morphed state
-   
+
   void incrementScore(int points) {
     score += points;
+    // Earn coins: 1 coin per point earned
+    final coinsToEarn = points;
+    coinsEarned += coinsToEarn;
+    CoinManager.addCoins(coinsToEarn);
   }
   
   void resetScore() {
     score = 0;
+    coinsEarned = 0;
     buttonPositions = [];
     buttonClicked = [];
     _isMorphed = false;
