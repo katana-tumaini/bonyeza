@@ -10,6 +10,7 @@ import 'package:bonyeza/technical/high_score_manager.dart';
 import 'package:bonyeza/technical/settings_manager.dart';
 import 'package:bonyeza/technical/background_music.dart';
 import 'package:bonyeza/technical/coin_manager.dart';
+import 'package:bonyeza/technical/achievement_manager.dart';
 import 'package:bonyeza/models/button_design.dart';
 import 'package:bonyeza/settings_screen.dart';
 import 'package:bonyeza/button_shop_screen.dart';
@@ -140,6 +141,7 @@ class _GameScreenState extends State<GameScreen> {
     }
 
     gameLogic.clickButton(buttonIndex);
+    gameLogic.incrementTap(); // Track taps for achievements
 
     // Add particle effect at button position
     if (buttonIndex < _buttonPositions.length) {
@@ -276,6 +278,10 @@ class _GameScreenState extends State<GameScreen> {
     HighScoreManager.saveHighScore(gameLogic.score).then((_) {
       _loadHighScore();
     });
+
+    // Update achievement stats
+    AchievementManager.updateHighestScore(gameLogic.score);
+    AchievementManager.addTotalCoinsEarned(gameLogic.coinsEarned);
 
     // Reload game data after game
     _loadGameData();

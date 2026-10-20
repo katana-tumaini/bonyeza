@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bonyeza/models/button_design.dart';
 import 'package:bonyeza/technical/coin_manager.dart';
+import 'package:bonyeza/technical/achievement_manager.dart';
 
 class ButtonShopScreen extends StatefulWidget {
   final VoidCallback onBack;
@@ -45,6 +46,9 @@ class _ButtonShopScreenState extends State<ButtonShopScreen> {
         _coins -= design.cost;
         _purchasedButtons.add(design.id);
       });
+
+      // Track purchase for achievements
+      await AchievementManager.incrementTotalPurchases();
 
       // Auto-select the newly purchased button
       await CoinManager.setSelectedButtonId(design.id);

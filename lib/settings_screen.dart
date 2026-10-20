@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bonyeza/technical/settings_manager.dart';
 import 'package:bonyeza/technical/background_music.dart';
+import 'package:bonyeza/achievements_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final VoidCallback onBack;
@@ -18,6 +19,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _audioEnabled = true;
   bool _hapticsEnabled = true;
   bool _musicEnabled = true;
+  bool _showAchievements = false;
 
   // music manager - use singleton
   final BackgroundMusic _backgroundMusic = BackgroundMusic();
@@ -80,6 +82,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Show achievements screen if requested
+    if (_showAchievements) {
+      return AchievementsScreen(
+        onBack: () {
+          setState(() {
+            _showAchievements = false;
+          });
+        },
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.blue[50],
       appBar: AppBar(
@@ -103,7 +116,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            
+
             Container(
               width: 300,
               padding: const EdgeInsets.all(20),
@@ -212,6 +225,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     activeColor: const Color(0xFF4ECDC4),
                   ),
                 ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Achievements Button
+            Container(
+              width: 300,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.amber[400],
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: Colors.black, width: 3),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    offset: const Offset(4, 4),
+                    blurRadius: 0,
+                  ),
+                ],
+              ),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _showAchievements = true;
+                  });
+                },
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.emoji_events, color: Colors.black, size: 24),
+                    SizedBox(width: 12),
+                    Text(
+                      'Achievements',
+                      style: TextStyle(
+                        fontFamily: 'PressStart',
+                        fontSize: 12,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

@@ -1,10 +1,12 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:bonyeza/technical/coin_manager.dart';
+import 'package:bonyeza/technical/achievement_manager.dart';
 
 class GameLogic {
   int score = 0;
   int coinsEarned = 0;
+  int tapsInGame = 0;
   List<Offset> buttonPositions = [];
   List<bool> buttonClicked = []; // Track which buttons have been clicked
   final Random _random = Random();
@@ -17,10 +19,16 @@ class GameLogic {
     coinsEarned += coinsToEarn;
     CoinManager.addCoins(coinsToEarn);
   }
+
+  void incrementTap() {
+    tapsInGame++;
+    AchievementManager.incrementTotalTaps(1);
+  }
   
   void resetScore() {
     score = 0;
     coinsEarned = 0;
+    tapsInGame = 0;
     buttonPositions = [];
     buttonClicked = [];
     _isMorphed = false;

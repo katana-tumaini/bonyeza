@@ -10,7 +10,7 @@ class Counter extends StatelessWidget {
     return Text(
       '$count',
       style: const TextStyle(
-        fontSize: 12,
+        fontSize: 10,
         fontFamily: 'PressStart',
         fontWeight: FontWeight.bold,
       ),
