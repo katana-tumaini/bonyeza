@@ -225,9 +225,28 @@ class _ButtonDesignCard extends StatelessWidget {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: design.color,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.black, width: 3),
+                  color: design.isRainbow ? null : design.color,
+                  gradient: design.isRainbow
+                      ? const LinearGradient(
+                          colors: [
+                            Color(0xFFFF0000),
+                            Color(0xFFFF7F00),
+                            Color(0xFFFFFF00),
+                            Color(0xFF00FF00),
+                            Color(0xFF0000FF),
+                            Color(0xFF4B0082),
+                            Color(0xFF9400D3),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                      : null,
+                  shape: design.shape,
+                  borderRadius: design.shape == BoxShape.rectangle ? BorderRadius.circular(12) : null,
+                  border: Border.all(
+                    color: design.borderColor ?? Colors.black,
+                    width: design.borderWidth,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.3),

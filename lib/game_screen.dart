@@ -344,13 +344,6 @@ class _GameScreenState extends State<GameScreen> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'bonyeza',
-              style: TextStyle(
-                fontFamily: 'PressStart',
-                fontSize: 10,
-              ),
-            ),
             if (_gameStarted && !_gameOver && !_isPaused)
               Text(
                 '${(_remainingTime / 1000).toStringAsFixed(1)}s',
@@ -367,7 +360,7 @@ class _GameScreenState extends State<GameScreen> {
               children: [
                 // Coins display
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.yellow[400],
                     borderRadius: BorderRadius.circular(12),
@@ -375,8 +368,8 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.monetization_on, size: 14, color: Colors.black),
-                      const SizedBox(width: 4),
+                      const Icon(Icons.monetization_on, size: 12, color: Colors.black),
+                      const SizedBox(width: 2),
                       Text(
                         '$_coins',
                         style: const TextStyle(
@@ -389,32 +382,20 @@ class _GameScreenState extends State<GameScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                if (_gameStarted && !_gameOver && !_isPaused && gameLogic.buttonClicked.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10.0),
-                    child: Text(
-                      '${gameLogic.getClickedCount()}/${gameLogic.buttonClicked.length}',
-                      style: const TextStyle(
-                        fontFamily: 'PressStart',
-                        fontSize: 10,
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                const SizedBox(width: 4),
                 Counter(count: gameLogic.score),
                 if (_gameStarted && !_gameOver)
                   Padding(
-                    padding: const EdgeInsets.only(left: 10.0),
+                    padding: const EdgeInsets.only(left: 6.0),
                     child: IconButton(
                       icon: Icon(_isPaused ? Icons.play_arrow : Icons.pause),
                       onPressed: _togglePause,
                       color: Colors.black,
+                      iconSize: 20,
                     ),
                   ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 10.0),
+                  padding: const EdgeInsets.only(left: 6.0),
                   child: IconButton(
                     icon: const Icon(Icons.store),
                     onPressed: () {
@@ -423,10 +404,11 @@ class _GameScreenState extends State<GameScreen> {
                       });
                     },
                     color: Colors.black,
+                    iconSize: 20,
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 10.0),
+                  padding: const EdgeInsets.only(left: 6.0),
                   child: IconButton(
                     icon: const Icon(Icons.settings),
                     onPressed: () {
@@ -435,6 +417,7 @@ class _GameScreenState extends State<GameScreen> {
                       });
                     },
                     color: Colors.black,
+                    iconSize: 20,
                   ),
                 ),
               ],
@@ -485,6 +468,10 @@ class _GameScreenState extends State<GameScreen> {
                   backgroundColor: isClicked ? Colors.grey : _selectedButtonDesign?.color,
                   width: gameLogic.calculateButtonSize,
                   height: gameLogic.calculateButtonSize,
+                  shape: _selectedButtonDesign?.shape,
+                  borderWidth: _selectedButtonDesign?.borderWidth,
+                  borderColor: _selectedButtonDesign?.borderColor,
+                  isRainbow: _selectedButtonDesign?.isRainbow ?? false,
                 ),
               );
             }),
