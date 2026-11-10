@@ -138,9 +138,39 @@ class GameLogic {
     );
   }
 
-  // Movement speed increases every 5 points
+  // Movement speed with tiered difficulty system
+  // Speed resets at score thresholds: 30, 65, 105, 150, 200, etc.
+  // Each tier's duration increases by 5 points
   double calculateSpeed(int score) {
-    return 1.0 + (score ~/ 5) * 0.2;
+    // Define tier thresholds
+    final thresholds = [30, 65, 105, 150, 200, 260, 325, 395, 470, 550];
+
+    // Find which tier we're in
+    int tierIndex = 0;
+    for (int i = 0; i < thresholds.length; i++) {
+      if (score >= thresholds[i]) {
+        tierIndex = i + 1;
+      } else {
+        break;
+      }
+    }
+
+    // Calculate score within current tier
+    int tierStartScore = tierIndex == 0 ? 0 : thresholds[tierIndex - 1];
+    int scoreInTier = score - tierStartScore;
+
+    // Base speed for this tier starts at 1.0 and increases
+    double baseSpeed = 1.0 + (tierIndex * 0.3); // Each tier starts slightly faster
+
+    // Speed increases within the tier based on points in tier
+    // Every 5 points in tier adds 0.2 speed
+    double speedInTier = (scoreInTier ~/ 5) * 0.2;
+
+    // Cap the max speed per tier to prevent it from getting too fast
+    double maxSpeedPerTier = baseSpeed + 2.0;
+    double finalSpeed = (baseSpeed + speedInTier).clamp(baseSpeed, maxSpeedPerTier);
+
+    return finalSpeed;
   }
 
   // Button gets smaller every 5 points
