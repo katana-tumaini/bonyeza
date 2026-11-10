@@ -168,7 +168,7 @@ class ButtonDesign {
       name: 'Shadow Box',
       color: Color(0xFF636E72),
       cost: 900,
-      description: 'Bold dark outline',
+      description: 'Muahahahahaha!!!!',
       shape: BoxShape.rectangle,
       borderWidth: 10.0,
       borderColor: Color(0xFF2D3436),

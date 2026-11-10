@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bonyeza/technical/game_button.dart';
@@ -150,13 +151,30 @@ class _GameScreenState extends State<GameScreen> {
       final centerX = position.dx + buttonSize / 2;
       final centerY = position.dy + buttonSize / 2;
 
+      // Use button color for particles, or random rainbow colors for rainbow button
+      Color particleColor;
+      if (_selectedButtonDesign?.isRainbow ?? false) {
+        // Random bright color for rainbow particles
+        final colors = [
+          Colors.red,
+          Colors.orange,
+          Colors.yellow,
+          Colors.green,
+          Colors.blue,
+          Colors.purple,
+        ];
+        particleColor = colors[Random().nextInt(colors.length)];
+      } else {
+        particleColor = _selectedButtonDesign?.color ?? const Color(0xFF4ECDC4);
+      }
+
       final effectKey = _particleEffectCounter++;
       setState(() {
         _particleEffects[effectKey] = ParticleEffect(
           key: ValueKey('particle_$effectKey'),
           x: centerX,
           y: centerY,
-          color: const Color(0xFF4ECDC4),
+          color: particleColor,
           onComplete: () {
             setState(() {
               _particleEffects.remove(effectKey);
